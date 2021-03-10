@@ -3,7 +3,7 @@ import requests
 import os
 
 
-def get_json_for_countries(url_country, path_country_json, path_country_csv):
+def get_json_write_csv_for_countries(url_country, path_country_json, path_country_csv):
     if not os.path.isfile(path_country_json):
         print('Arquivo json de países não existe. ')
         try:
@@ -38,12 +38,12 @@ def get_json_for_countries(url_country, path_country_json, path_country_csv):
 
     with open(path_country_csv, 'a', encoding="utf-8") as file:
         for c in countries:
-            csv = f'{c.get("Country")},{c.get("ISO2")}\n'
+            csv = f'{c.get("Country")};{c.get("ISO2")}\n'
             file.write(csv)
     print("Pronto")
 
 
-def get_json_for_summary(url_summary, path_summary_json, path_summary_csv):
+def get_json_write_csv_for_summary(url_summary, path_summary_json, path_summary_csv):
     if not os.path.isfile(path_summary_json):
         print('Arquivo json de sumário países não existe. ')
         try:
@@ -83,9 +83,10 @@ def get_json_for_summary(url_summary, path_summary_json, path_summary_csv):
             json_summary_country = c.get('Country')
             json_summary_country_code = c.get('CountryCode')
             json_summary_country_id = c.get('ID')
-            csv = f'{json_summary_country},{json_summary_country_code},{json_summary_country_id}\n'
+            csv = f'{json_summary_country};{json_summary_country_code}\n'
             file.write(csv)
     print("Pronto")
+
 
 def init(path_country_csv, path_summary_csv):
     print('Carga json dados COVID-19 iniciada.')
@@ -97,9 +98,8 @@ def init(path_country_csv, path_summary_csv):
     url_summary = r'https://api.covid19api.com/summary'
     path_summary_json = r'/home/amanda/Documents/Accademia_Accenture/Desafio/projeto_final_equipe_1/json/summary.json'
 
-
-    get_json_for_summary(url_summary, path_summary_json, path_summary_csv)
-    get_json_for_countries(url_country, path_country_json, path_country_csv)
+    get_json_write_csv_for_summary(url_summary, path_summary_json, path_summary_csv)
+    get_json_write_csv_for_countries(url_country, path_country_json, path_country_csv)
 
     print()
     print('Carga json finalizada.')
