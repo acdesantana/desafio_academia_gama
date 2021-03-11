@@ -2,19 +2,6 @@ import pyodbc
 from datetime import date, datetime
 
 
-def insert_country_summary(c, summary_csv):
-    with open(summary_csv, 'r', encoding="utf-8") as csv:
-        for linha in csv:
-            dado = linha.rstrip().split(';')
-            try:
-                #   usar o ISO2 como key no dict = {ISO2 : id} criado na funcao anterior
-                c.execute("INSERT INTO COUNTRY_COVID_DATA VALUES (?, ?, ?, ?, ?, ?, ?)", dado)
-
-            except Exception as e:
-                c.rollback()
-                print('Erro insert Países Summary.', dado, e)
-
-
 def insert_country(c, country_csv):
     print(f'Iniciando carga na tabela COUNTRY.')
     with open(country_csv, 'r', encoding="utf-8") as csv:
@@ -101,14 +88,13 @@ def open_cursor():
     return connection, connection.cursor()
 
 
-def init(path_country_csv, path_summary_csv):
+def init(path_country_csv):
     conn, cursor = open_cursor()
 
     print()
     print('Carga no banco iniciada.')
     create_database_tables(cursor)
 
-    insert_country_summary(cursor, path_summary_csv)
     insert_country(cursor, path_country_csv)
 
     conn.close()
