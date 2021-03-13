@@ -27,14 +27,15 @@ def main():
 
     df_geral['DATE'] = pd.to_datetime(df_geral['DATE'], infer_datetime_format=True)
     df_geral.set_index('DATE', inplace=True)
+    df_geral.sort_index(ascending=False, inplace=True)
 
-    df_casos = df_geral.loc[df_geral['ID_CASE_TYPE'] == 1, :]
-    df_mortes = df_geral.loc[df_geral['ID_CASE_TYPE'] == 2, :]
+    df_geral = df_geral.sort_values(by='TOTAL_CASES', ascending=False)
 
-    top_casos = df_casos.groupby(['NAME'])['TOTAL_CASES'].agg(['sum']).sort_values('sum', ascending=False).head(
-        10).index.to_list()
-    top_mortes = df_mortes.groupby(['NAME'])['TOTAL_CASES'].agg(['sum']).sort_values('sum', ascending=False).head(
-        10).index.to_list()
+    df_casos = df_geral.loc[df_geral['ID_CASE_TYPE'] == 1, :].sort_values(by='TOTAL_CASES', ascending=False)
+    df_mortes = df_geral.loc[df_geral['ID_CASE_TYPE'] == 2, :].sort_values(by='TOTAL_CASES', ascending=False)
+
+    top_casos = df_casos['NAME'].unique()[:10]
+    top_mortes = df_mortes['NAME'].unique()[:10]
 
     st.title('Projeto final - Gama Academy')
 
@@ -65,11 +66,11 @@ def main():
         st.write('Panorama diário de quantidade de casos confirmados de COVID-19 dos 10 países do mundo com maiores números.')
         df_q1 = df_casos.loc[df_casos['NAME'].isin(top_casos), :]
         sns.set(rc={'figure.figsize': (11.7, 8.27)})
-        sns.lineplot(x="DATE", y="TOTAL_CASES", hue="NAME", ci=None, linewidth = 2.5, data= df_q1)
+        sns.lineplot(x="DATE", y="TOTAL_CASES", hue="NAME", ci=None, linewidth=2.5, data=df_q1)
         st.pyplot()
 
     elif choice == 'Mortes por COVID - diário':
-        st.subheader('Casos confirmados - diário')
+        st.subheader('Mortes confirmadas - diário')
         st.write('Panorama diário de quantidade de mortes de COVID-19 dos 10 países do mundo com números.')
         df_q2 = df_mortes.loc[df_mortes['NAME'].isin(top_mortes), :]
         sns.set(rc={'figure.figsize': (11.7, 8.27)})
@@ -79,38 +80,16 @@ def main():
     elif choice == 'Mortes por COVID - total':
         st.subheader('Número total de mortes por COVID')
         st.write('Total de mortes por COVID-19 dos 10 países do mundo com maiores números.')
-        st.write(pd.DataFrame(cursor.execute('''SELECT top 10 nome, max(total_cases) as total FROM (
-                                                        SELECT *, Row_Number() OVER (PARTITION BY nome ORDER BY total_cases DESC) AS rn
-                                                        FROM (SELECT 
-                                                                    con.name as nome,
-                                                                    ccdc.TOTAL_CASES as total_cases
-                                                                    FROM COUNTRY_COVID_DAILY_CASES ccdc
-                                                                    join COUNTRY con on con.ID = ccdc.ID_COUNTRY 
-                                                                    where ccdc.ID_CASE_TYPE = 2
-                                                                    Group by con.name, total_cases
-                                                                ) as Q1 
-                                                        ) AS Q2
-                                                WHERE rn <= 10
-                                                group by nome
-                                                ORDER BY total desc;''')))
+        df_q3 = df_mortes.loc[(df_mortes['NAME'].isin(top_mortes)), ['NAME', 'TOTAL_CASES']].drop_duplicates(subset=['NAME']).head(10).reset_index()
+        del df_q3['DATE']
+        st.write(df_q3)
 
     elif choice == 'Casos confirmados - total':
         st.subheader('Casos confirmados - total')
         st.write('Total de casos confirmados por COVID-19 dos 10 países do mundo com maiores números')
-        st.write(pd.DataFrame(cursor.execute('''SELECT top 10 nome, max(total_cases) as total FROM (
-                                                        SELECT *, Row_Number() OVER (PARTITION BY nome ORDER BY total_cases DESC) AS rn
-                                                        FROM (SELECT 
-                                                                    con.name as nome,
-                                                                    ccdc.TOTAL_CASES as total_cases
-                                                                    FROM COUNTRY_COVID_DAILY_CASES ccdc
-                                                                    join COUNTRY con on con.ID = ccdc.ID_COUNTRY 
-                                                                    where ccdc.ID_CASE_TYPE = 1
-                                                                    Group by con.name, total_cases
-                                                                ) as Q1 
-                                                        ) AS Q2
-                                                WHERE rn <= 10
-                                                group by nome
-                                                ORDER BY total desc;''')))
+        df_q4 = df_casos.loc[(df_casos['NAME'].isin(top_casos)), ['NAME', 'TOTAL_CASES']].drop_duplicates(subset=['NAME']).head(10).reset_index()
+        del df_q4['DATE']
+        st.write(df_q4)
 
 
 if __name__ == '__main__':
