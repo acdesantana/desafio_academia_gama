@@ -26,38 +26,20 @@ def insert_data(cursor):
     countries = get_data_from_api(endpoint_country)
 
     insert_row_counter = 0
-    countries_with_error = ["Lesotho", "Poland", "United Arab Emirates",
-                            "Cook Islands", "Peru", "Qatar",
-                            "Mayotte", "Montserrat", "Uzbekistan",
-                            "Germany", "Isle of Man", "Equatorial Guinea",
-                            "Croatia", "Gibraltar", "Argentina", "Australia",
-                            "Colombia", "Finland", "Guinea", "Samoa", "Cyprus",
-                            "Hong Kong, SAR China", "Saint-Barthélemy", "South Georgia and the South Sandwich Islands",
-                            "Sudan", "Viet Nam", "Guam", "Malawi", "Pakistan",
-                            "Bhutan", "Greenland", "Jamaica", "Myanmar",
-                            "Rwanda", "Trinidad and Tobago", "United States of America", "Cameroon",
-                            "Canada", "Guinea-Bissau", "Belize", "Chile", "Kenya", "Marshall Islands", "Réunion",
-                            "Bolivia", "Burkina Faso", "Montenegro", "Tonga", "Azerbaijan", "Bahamas", "Latvia",
-                            "Morocco", "Swaziland", "Tuvalu", "Bahrain", "Botswana", "Nicaragua", "Paraguay", "Armenia",
-                            "Brazil", "Kuwait", "Netherlands Antilles", "Wallis and Futuna Islands", "Uruguay", "Egypt",
-                            "Gambia", "Mongolia", "Pitcairn", "South Sudan", "Switzerland", "Namibia",
-                            "Northern Mariana Islands", "Saint Kitts and Nevis", "Sweden", "Iraq", "Israel",
-                            "Nauru", "Norway", "Sao Tome and Principe", "Macao, SAR China", "Nigeria", "Panama",
-                            "Albania", "Belarus", "Serbia", "El Salvador", "Ireland", "Oman", "Palestinian Territory",
-                            "Seychelles", "Somalia", "Barbados", "Falkland Islands (Malvinas)",
-                            "Saint Vincent and Grenadines", "Syrian Arab Republic (Syria)"]
+    countries_with_error = ["United States of America"]
 
     for country in countries:
 
         if country['Country'] in countries_with_error:
             try:
-                # cursor.execute("INSERT INTO COUNTRY VALUES (?,?,?)", country['Country'], country['ISO2'], country['Slug'])
-                # insert_row_counter += 1
-                # cursor.execute("SELECT @@IDENTITY AS ID;")
-                # country_id = cursor.fetchone()[0]
                 country_id = 0
-                cursor.execute("SELECT * FROM COUNTRY WHERE SLUG=?", country['Slug'])
+                cursor.execute("INSERT INTO COUNTRY VALUES (?,?,?)", country['Country'], country['ISO2'], country['Slug'])
+                insert_row_counter += 1
+                cursor.execute("SELECT @@IDENTITY AS ID;")
                 country_id = cursor.fetchone()[0]
+
+                # cursor.execute("SELECT * FROM COUNTRY WHERE SLUG=?", country['Slug'])
+                # country_id = cursor.fetchone()[0]
 
                 current_date = datetime.now().isoformat()
                 endpoint_country_data = f"https://api.covid19api.com/country/{country['Slug']}?" \
@@ -70,7 +52,8 @@ def insert_data(cursor):
                         selected_day = modified_date.split('-')[2]
                         today = datetime.today().date()
 
-                        if modified_date in ['2020-01-07', '2020-01-15', '2020-12-15', '2021-01-07', '2021-01-15']:
+                        if selected_day in ['01', '11', '22'] or \
+                                modified_date in ['2020-01-07', '2020-01-15', '2020-12-15', '2021-01-07', '2021-01-15']:
                             try:
                                 # insert confirmed (Case Type 1)
                                 cursor.execute("INSERT INTO COUNTRY_COVID_DAILY_CASES VALUES (?,?,?,?)",
