@@ -1,0 +1,65 @@
+Fontes de consulta: 
+	https://gavinwiener.medium.com/how-to-schedule-a-python-script-cron-job-dea6cbf69f4e
+	https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/
+	https://www.youtube.com/watch?v=kL5rmcxwgSs
+
+PARTE 1:
+Ambiente Linux
+	1) Usar ambiente virtual existente:
+		Pode digitar no terminal do PyCharm:
+			$ which python
+				resultado deve ser <PATH_NA_MÁQUINA>/PycharmProjects/pythonProject/venv/bin/python
+
+	2) Quando não existir ambiente virtual:
+		Setup do Python (executar no terminal):
+				$ python3 -m pip install --user --upgrade pip
+
+		Setup do virtualenv:
+			$ python3 -m pip install --user virtualenv
+
+		Criar ambiente virtual:
+			$ python3 -m venv env
+
+			Ou, em sistemas Debian/Ubuntu:
+				$ sudo apt-get install python3-venv
+				$ python3 -m venv env
+
+		Ativar ambiente virtual:		
+			$ source env/bin/activate
+			$ which python
+				Ambiente virtual em execução no momento:/home/amanda/env/bin/python
+
+		Desativar ambiente virtual:
+			$ deactivate
+	
+	Na sequência basta instalar as dependências que vai usar no projeto. Por exemplo:
+		$ python3 -m pip install requests
+		Ou uma versão específica:
+			$ python3 -m pip install requests==2.18.4
+
+	
+PARTE 2:	
+Configuraçao do Job no CRON
+	Com o ambiente virtual ATIVADO, execute no terminal:
+		$ crontab -e 
+	
+	OBS: Verificar se existem os paths indicados na url de configuração a seguir!
+	Para execucao todo dia as 6h da manhã adicionar a linha no final do arquivo
+		*/0 6 * * * <PATH_NA_MÁQUINA>/PycharmProjects/pythonProject/venv/bin/python  <PATH_NA_MÁQUINA>/python_project/database_manager.py  >> <PATH_NA_MÁQUINA>/python_project/logs_schedule/cron_OUTER.log 2>&1 
+	
+	Crtl+x para Sair e Y (YES) para salvar.
+	
+	
+	
+NOTA EXPLICATIVA:
+	fonte: https://unix.stackexchange.com/questions/163352/what-does-dev-null-21-mean-in-this-article-of-crontab-basics
+	"When you run a script that gives you an output and if 
+		we add a > path/cron_OUTER.log 2>&1 at the end of the script, we are asking the script to write whatever 
+		that is generated from the script (both the output and error messages) to path/cron_OUTER.log.
+		
+		2 is the handle for standard error or STDERR
+		1 is the handle for standard output or STDOUT
+		2>&1 is asking to direct all the STDERR as STDOUT"
+	
+
+	
