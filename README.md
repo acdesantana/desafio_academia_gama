@@ -2,7 +2,7 @@
 
 Final project for the Accenture-Gama Data Engineering Program
 
-## Group
+## Group (DataRangers)
 
 * **Alciso Filho**
 * **Amanda Campos**
