@@ -1,6 +1,7 @@
 # COVID-19 Data Project
 
 Final project for the Accenture-Gama Data Engineering Program
+Slide show: https://bit.ly/2Ng68a2
 
 Slide show: https://bit.ly/2Ng68a2
 
